@@ -25,8 +25,12 @@ public class StockClient {
 
 
     private final String stockUrl;
+    private final StockReader stockReader;
 
-    public StockClient(@Autowired WebClient webClient, @Value("${server.stock.provider.url}") String stockUrl) {
+    public StockClient(@Autowired WebClient webClient,
+                       @Autowired StockReader stockReader,
+                       @Value("${server.stock.provider.url}") String stockUrl) {
+        this.stockReader = stockReader;
         this.client = webClient;
         this.stockUrl = stockUrl;
     }
@@ -36,17 +40,14 @@ public class StockClient {
 
         try {
             InputStream is = getResponseAsInputStream(client, stockUrl);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String line;
-            while ((line = br.readLine()) != null) {
-                LOG.info(line);
-            }
+            stockReader.readData(is);
+
         } catch (IOException | InterruptedException e) {
-            LOG.error("Failed to retrieve stock from stock provider");
+            LOG.error("Failed to retrieve stock from stock provider", e);
         }
         LOG.info("The time is now {}", dateFormat.format(new Date()));
     }
-    public static InputStream getResponseAsInputStream(WebClient client, String url) throws IOException, InterruptedException {
+    public InputStream getResponseAsInputStream(WebClient client, String url) throws IOException, InterruptedException {
 
         PipedOutputStream pipedOutputStream = new PipedOutputStream();
         PipedInputStream pipedInputStream = new PipedInputStream(1024 * 10);
