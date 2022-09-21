@@ -17,8 +17,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Service
-public class StockClient {
-    private static final Logger LOG = LoggerFactory.getLogger(StockClient.class);
+public class StockProviderClient {
+    private static final Logger LOG = LoggerFactory.getLogger(StockProviderClient.class);
 
     private final WebClient client;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
@@ -27,9 +27,9 @@ public class StockClient {
     private final String stockUrl;
     private final StockReader stockReader;
 
-    public StockClient(@Autowired WebClient webClient,
-                       @Autowired StockReader stockReader,
-                       @Value("${server.stock.provider.url}") String stockUrl) {
+    public StockProviderClient(@Autowired WebClient webClient,
+                               @Autowired StockReader stockReader,
+                               @Value("${server.stock.provider.url}") String stockUrl) {
         this.stockReader = stockReader;
         this.client = webClient;
         this.stockUrl = stockUrl;
