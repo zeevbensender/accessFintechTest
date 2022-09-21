@@ -1,6 +1,7 @@
 package com.lupo.interview.accessFintech.web;
 
 import com.lupo.interview.accessFintech.model.DataAccessService;
+import com.lupo.interview.accessFintech.model.Stock;
 import com.lupo.interview.accessFintech.model.StockNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController
 public class MainConnector {
@@ -36,6 +39,10 @@ public class MainConnector {
             LOG.warn(msg);
             return new ResponseEntity<>(msg, HttpStatus.NOT_FOUND);
         }
+    }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<Stock>> getAll() {
+        return new ResponseEntity<>(dataAccessService.getAll(), HttpStatus.OK);
     }
 }

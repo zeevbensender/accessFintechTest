@@ -1,16 +1,20 @@
 package com.lupo.interview.accessFintech.model;
 
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class DataAccessService {
     private static final Logger LOG = LoggerFactory.getLogger(DataAccessService.class);
     private final StockRepository repo;
+    Gson gson = new Gson();
 
     public DataAccessService(@Autowired StockRepository repo) {
         this.repo = repo;
@@ -33,5 +37,11 @@ public class DataAccessService {
         return getStock(stockId)
                 .orElseThrow(StockNotFoundException::new)
                 .getPrice();
+    }
+
+    public List<Stock> getAll() {
+        List<Stock> res = new ArrayList<>();
+        repo.findAll().forEach(res::add);
+        return res;
     }
 }
