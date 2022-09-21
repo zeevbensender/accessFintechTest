@@ -38,14 +38,13 @@ public class StockProviderClient {
     @Scheduled(fixedRateString = "${server.scheduler.interval.millis}")
     public void pollData() {
 
-        try {
-            InputStream is = getResponseAsInputStream(client, stockUrl);
+        try (InputStream is = getResponseAsInputStream(client, stockUrl)){
             stockReader.readData(is);
 
         } catch (IOException | InterruptedException e) {
             LOG.error("Failed to retrieve stock from stock provider", e);
         }
-        LOG.info("Reading data from stock provider {}", dateFormat.format(new Date()));
+        LOG.info("Reading data from stock provider {} ({})", stockUrl, dateFormat.format(new Date()));
     }
     public InputStream getResponseAsInputStream(WebClient client, String url) throws IOException, InterruptedException {
 
@@ -73,7 +72,6 @@ public class StockProviderClient {
                 });
 
         DataBufferUtils.write(body, pipedOutputStream)
-                .log("Writing to output buffer")
                 .subscribe();
         return pipedInputStream;
     }

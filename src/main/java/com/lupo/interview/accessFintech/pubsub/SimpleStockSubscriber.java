@@ -23,7 +23,23 @@ public class SimpleStockSubscriber implements StockSubscriber{
     @Override
     @JmsListener(destination = "${server.stock.queue.name}")
     public void onMessage(String message) {
-        Stock stock = gson.fromJson(message, Stock.class);
-        dataAccessService.saveOrUpdateStock(stock);
+        if(message.charAt(0) == '{') {
+            dataAccessService.saveOrUpdateStock(parseJson(message));
+        }else {
+            String[] values = message.split(",");
+            if(values.length > 1) {
+                dataAccessService.saveOrUpdateStock(parseCsv(values));
+            }
+        }
+    }
+
+    private Stock parseCsv(String[] values) {
+        return new Stock(values[0], Double.valueOf(values[2].strip()));
+    }
+    private Stock parseJson(String message) {
+        if(message.endsWith(",")) {
+            message = message.substring(0, message.length() - 1);
+        }
+        return gson.fromJson(message, Stock.class);
     }
 }

@@ -1,30 +1,45 @@
 package com.lupo.interview.accessFintech.model;
 
-import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+@Component
+@Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class DataAccessService {
     private static final Logger LOG = LoggerFactory.getLogger(DataAccessService.class);
     private final StockRepository repo;
-    Gson gson = new Gson();
+    private final boolean cleanUponRestart;
 
-    public DataAccessService(@Autowired StockRepository repo) {
+    public DataAccessService(@Autowired StockRepository repo, @Value("${server.clean.db.upon.restart}") boolean cleanUponRestart) {
         this.repo = repo;
+        this.cleanUponRestart = cleanUponRestart;
+    }
+
+    @PostConstruct
+    public void init() {
+        if(cleanUponRestart)
+            repo.deleteAll();
     }
 
     public void saveOrUpdateStock(Stock stock) {
-            Stock oldStock = getStock(stock.getName()).get();
-            if(oldStock == null || stock.getPrice() < oldStock.getPrice()) {
+            Optional<Stock> optional = getStock(stock.getName());
+            if(!optional.isPresent()) {
+                LOG.info("About to save new  stock data: {}: price {})",
+                        stock.getName(), stock.getPrice());
+                repo.save(stock);
+            } else if(stock.getPrice() < optional.get().getPrice()) {
                 LOG.info("About to update stock: {} (old price: {}, new price {})",
-                        stock.getName(), oldStock.getPrice(), stock.getPrice());
+                        stock.getName(), optional.get().getPrice(), stock.getPrice());
                 repo.save(stock);
             }
     }
