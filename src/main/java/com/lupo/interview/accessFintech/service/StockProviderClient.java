@@ -45,7 +45,7 @@ public class StockProviderClient {
         } catch (IOException | InterruptedException e) {
             LOG.error("Failed to retrieve stock from stock provider", e);
         }
-        LOG.info("The time is now {}", dateFormat.format(new Date()));
+        LOG.info("Reading data from stock provider {}", dateFormat.format(new Date()));
     }
     public InputStream getResponseAsInputStream(WebClient client, String url) throws IOException, InterruptedException {
 

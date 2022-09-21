@@ -1,6 +1,13 @@
 package com.lupo.interview.accessFintech.model;
 
-public class Stock {
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.RedisHash;
+
+import java.io.Serializable;
+
+@RedisHash("Stock")
+public class Stock implements Serializable {
+    @Id
     private final String name;
     private final double price;
 
