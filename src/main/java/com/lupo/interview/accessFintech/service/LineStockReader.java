@@ -1,7 +1,5 @@
 package com.lupo.interview.accessFintech.service;
 
-import com.google.gson.Gson;
-import com.lupo.interview.accessFintech.model.Stock;
 import com.lupo.interview.accessFintech.pubsub.StockPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +13,6 @@ import java.io.InputStreamReader;
 
 @Service
 public class LineStockReader implements StockReader{
-    Gson gson = new Gson();
 private final StockPublisher stockPublisher;
     private static final Logger LOG = LoggerFactory.getLogger(LineStockReader.class);
     public LineStockReader(@Autowired StockPublisher stockPublisher) {
@@ -35,9 +32,7 @@ private final StockPublisher stockPublisher;
                 if(line.endsWith(",")) {
                     line = line.substring(0, line.length() - 1);
                 }
-                LOG.info("About to publish line {}", line);
-                Stock stock = gson.fromJson(line,Stock.class);
-                stockPublisher.publish(stock);
+                stockPublisher.publish(line);
             }
         } catch (IOException e) {
             LOG.error("Failed to read stock data", e);
