@@ -1,5 +1,7 @@
 package com.lupo.interview.accessFintech.service;
 
+import com.lupo.interview.accessFintech.pubsub.SimpleStockPublisher;
+import com.lupo.interview.accessFintech.pubsub.StockPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +21,13 @@ import java.util.concurrent.Executors;
 public class StockFileReader {
     private static final Logger LOG = LoggerFactory.getLogger(StockFileReader.class);
 
-    private final StockReader stockReader;
+    private final StockPublisher stockReader;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
     private final String[] filesPath;
 
     private ExecutorService executorService;
 
-    public StockFileReader(@Autowired StockReader stockReader,
+    public StockFileReader(@Autowired StockPublisher stockReader,
                            @Value("${server.stock.file.path}") String filePath) {
         this.stockReader = stockReader;
         this.filesPath = filePath.split(",");

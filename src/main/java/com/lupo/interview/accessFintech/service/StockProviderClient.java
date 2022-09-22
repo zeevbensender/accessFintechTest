@@ -1,5 +1,7 @@
 package com.lupo.interview.accessFintech.service;
 
+import com.lupo.interview.accessFintech.pubsub.SimpleStockPublisher;
+import com.lupo.interview.accessFintech.pubsub.StockPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,10 @@ public class StockProviderClient {
 
 
     private final String stockUrl;
-    private final StockReader stockReader;
+    private final StockPublisher stockReader;
 
     public StockProviderClient(@Autowired WebClient webClient,
-                               @Autowired StockReader stockReader,
+                               @Autowired StockPublisher stockReader,
                                @Value("${server.stock.provider.url}") String stockUrl) {
         this.stockReader = stockReader;
         this.client = webClient;
@@ -58,7 +60,7 @@ public class StockProviderClient {
                     return clientResponse.body(BodyExtractors.toDataBuffers());
                 })
                 .doOnError(error -> {
-                    LOG.error("error occurred while reading body", error);
+                    LOG.error("Failed to read stock data from {}", url, error);
                 })
                 .doFinally(s -> {
                     try {

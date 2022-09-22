@@ -1,7 +1,7 @@
 package com.lupo.interview.accessFintech.pubsub;
 
-import com.lupo.interview.accessFintech.model.Stock;
+import java.io.InputStream;
 
 public interface StockPublisher {
-    void publish(String stock);
+    void readData(InputStream inputStream);
 }
