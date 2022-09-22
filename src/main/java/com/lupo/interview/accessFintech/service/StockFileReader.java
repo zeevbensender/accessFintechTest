@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import javax.annotation.PreDestroy;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executors;
 
 @Service
 public class StockFileReader {
@@ -29,10 +29,7 @@ public class StockFileReader {
                            @Value("${server.stock.file.path}") String filePath) {
         this.stockReader = stockReader;
         this.filesPath = filePath.split(",");
-        executorService = new ThreadPoolExecutor(
-                this.filesPath.length,
-                this.filesPath.length, 0l, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<>());
+        executorService = Executors.newFixedThreadPool(this.filesPath.length);
     }
 
     @Scheduled(fixedRateString = "${server.scheduler.interval.millis}")
@@ -49,5 +46,10 @@ public class StockFileReader {
         }catch (IOException e){
             LOG.error("Failed to load stock data from {} file", filePath);
         }
+    }
+
+    @PreDestroy
+    public void shutdown(){
+        executorService.shutdown();
     }
 }
